@@ -1,3 +1,4 @@
+from sched import scheduler
 from httpx import AsyncClient
 from bs4 import BeautifulSoup
 from app.crud import save_products
@@ -58,5 +59,9 @@ async def parse_and_save_data():
     products = await scrape_category()
     async with async_session() as session:
         await save_products(session, products)
+
+
+def stop_parsing_job():
+    scheduler.shutdown()
 
 

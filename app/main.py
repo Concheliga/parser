@@ -7,7 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.models import Base
 from app.database import engine
 from app.crud import get_parsed_data, update_product, delete_product, delete_all_products
-from app.parser import parse_and_save_data
+from app.parser import parse_and_save_data, stop_parsing_job
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -30,6 +30,11 @@ async def startup():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(parse_and_save_data, "interval", minutes=60)  # Парсинг каждые 60 минут
     scheduler.start()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    stop_parsing_job()
 
 
 @app.get("/products/", response_model=List[ProductResponse])
